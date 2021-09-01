@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# Request one node that will not be allocated to others for the duration of the run.
+#SBATCH -N1 --exclusive --ntasks-per-node=40 -t 01-23:00:00
+#SBATCH -C skylake
+#SBATCH -o out/%j.out
+#SBATCH --mem-per-cpu=5000
+#SBATCH --mail-user=kvantilburg@flatironinstitute.org
+#SBATCH --mail-type=ALL
+#SBATCH --requeue
+
+# Activate conda environment
+source ~/.bashrc
+conda activate ss_sim
+
+jmock=131
+
+# Run 
+for im in {0..369..1}
+    do
+        echo "Starting projection $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        sleep 1
+    done
+
+# set 'wait' barrier so entire job does not get killed when last srun command does
+echo "All projections started"
+
+wait 
+
+echo "All projections finished"
+
+jmock=43
+
+# Run 
+for im in {0..369..1}
+    do
+        echo "Starting projection $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        sleep 1
+    done
+
+# set 'wait' barrier so entire job does not get killed when last srun command does
+echo "All projections started"
+
+wait 
+
+echo "All projections finished"
+
+jmock=161
+
+# Run 
+for im in {0..369..1}
+    do
+        echo "Starting projection $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        sleep 1
+    done
+
+# set 'wait' barrier so entire job does not get killed when last srun command does
+echo "All projections started"
+
+wait 
+
+echo "All projections finished"
+
+jmock=37
+
+# Run 
+for im in {0..369..1}
+    do
+        echo "Starting projection $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        sleep 1
+    done
+
+# set 'wait' barrier so entire job does not get killed when last srun command does
+echo "All projections started"
+
+wait 
+
+echo "All projections finished"
+
+jmock=53
+
+# Run 
+for im in {0..369..1}
+    do
+        echo "Starting projection $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        sleep 1
+    done
+
+# set 'wait' barrier so entire job does not get killed when last srun command does
+echo "All projections started"
+
+wait 
+
+echo "All projections finished"
