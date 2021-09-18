@@ -5,9 +5,12 @@ import numpy_indexed as npi
 from scipy.interpolate import RegularGridInterpolator as rgi
 from scipy.integrate import quad, nquad
 from scipy import optimize
+from scipy import stats
 from scipy.stats import norm
 from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
+
+import emcee
 
 import matplotlib.pyplot as plt
 import matplotlib as mp
@@ -30,6 +33,12 @@ degree = np.pi/180 # degree in units of radians
 
 ########### general-usage functions #####################
 factorial_vec = np.vectorize(np.math.factorial) # vectorized version of numpy's factorial function
+
+def poisson_limit(N_dat,CL=0.9):
+    """Given 'N_dat' data points, return CL='CL' limit on number of signal counts."""
+    N_sig = np.logspace(0,8,np.int(1e5))
+    idx = np.argwhere(np.diff(np.sign((1-CL) - stats.poisson.cdf(N_dat,N_sig)))).flatten()[0]
+    return N_sig[idx]
 
 ########### mapping functions #####################
 def map_ra_dec_from_i1_i2(detector,i1,i2,df_box):
@@ -91,7 +100,7 @@ def load_box(file_box_centers):
 def load_arf(list_file_arf,bins_E,df_box):
     width_E = bins_E[1] - bins_E[0]
     df_arf = pd.DataFrame(columns=['detector','idx_E','i1','i2','ra','dec','arf'])
-    for i_f,file in tqdm(enumerate(list_file_arf)):
+    for i_f,file in enumerate(list_file_arf):
         try:
             file_name = file.split('/')[-1]
             detector = file_name.split('_')[0]
@@ -134,7 +143,7 @@ def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166):
         if m==None:
             pass
         else:
-            dat_det = dat_det[np.abs(dat_det['E']-m/2)<2*sigma_E]
+            dat_det = dat_det[np.abs(dat_det['E']-m/2)<3*sigma_E]
         box_RA = df_box[df_box['detector']==detector]['ra'].to_numpy()
         box_DEC = df_box[df_box['detector']==detector]['dec'].to_numpy()
     
@@ -424,16 +433,16 @@ def proj_unit_cuboid(t,E,x,y,m,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_m
         return integral_E * integral_t
     rho_2_quad = np.vectorize(rho_2_quad)
     
-    print('Computing rho_3 table...')
+    #print('Computing rho_3 table...')
     tic3 = tictoc()
     arr_rho_3 = rho_3_quad(arr_Exy_proj[0],arr_Exy_proj[1],arr_Exy_proj[2])
     toc3 = tictoc()
-    print('time for rho_3 table =',toc3 - tic3)
-    print('Computing rho_2 table...')
+    #print('time for rho_3 table =',toc3 - tic3)
+    #print('Computing rho_2 table...')
     tic2 = tictoc()
     arr_rho_2 = rho_2_quad(arr_xy_proj[0],arr_xy_proj[1])
     toc2 = tictoc()
-    print('time for rho_2 table =',toc2 - tic2)
+    #print('time for rho_2 table =',toc2 - tic2)
     
     int_rho_3_tuple = rgi(points=(vec_E_proj,vec_x_proj,vec_y_proj),values=arr_rho_3,method='linear',bounds_error=False,fill_value=None)
     int_rho_2_tuple = rgi(points=(vec_x_proj,vec_y_proj),values=arr_rho_2,method='linear',bounds_error=False,fill_value=None)
@@ -446,17 +455,17 @@ def proj_unit_cuboid(t,E,x,y,m,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_m
         return quad(rho_2,bounds_x[0],bounds_x[1],args=y,epsrel=1e-4,epsabs=0,limit=100)[0]
     rho_1_quad = np.vectorize(rho_1_quad)
     
-    print('Computing rho_1 table...')
+    #print('Computing rho_1 table...')
     arr_rho_1 = rho_1_quad(vec_y_proj)
     rho_1 = interp1d(vec_y_proj,arr_rho_1,kind='linear',bounds_error=False,fill_value='extrapolate')
     
     
     def rho_0():
         return quad(rho_1,bounds_y[0],bounds_y[1],epsrel=1e-4,epsabs=0,limit=100)[0]
-    print('Computing rho_0...')
+    #print('Computing rho_0...')
     rho_0_val = rho_0()
     
-    print('rho functions computed.')
+    print('m = '+str(m)[0:8]+': rho functions computed in '+str(toc2-tic3)+' seconds.')
     
     def map_r_4(t,E,x,y):
         ra, dec = np.linalg.inv(mat_rot) @ np.asarray([x,y])
@@ -478,28 +487,39 @@ def proj_unit_cuboid(t,E,x,y,m,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_m
         return quad(rho_1,bounds_y[0],y,limit=100,epsrel=1e-3,epsabs=0)[0] / rho_0_val
     map_r_1 = np.vectorize(map_r_1_quad)
     
-    print('Computing r_4 coordinates...')
+    #print('Computing r_4 coordinates...')
     tic4 = tictoc()
     r_4 = map_r_4(t,E,x,y)
     toc4 = tictoc()
-    print('time for r_4 array =',toc4 - tic4)
+    #print('time for r_4 array =',toc4 - tic4)
     
-    print('Computing r_3 coordinates...')
+    #print('Computing r_3 coordinates...')
     tic3 = tictoc()
     r_3 = map_r_3(E,x,y)
     toc3 = tictoc()
-    print('time for r_3 array =',toc3 - tic3)
+    #print('time for r_3 array =',toc3 - tic3)
     
-    print('Computing r_2 coordinates...')
+    #print('Computing r_2 coordinates...')
     tic2 = tictoc()
     r_2 = map_r_2(x,y)
     toc2 = tictoc()
-    print('time for r_2 array =',toc2 - tic2)
+    #print('time for r_2 array =',toc2 - tic2)
     
-    print('Computing r_1 coordinates...')
+    #print('Computing r_1 coordinates...')
     tic1 = tictoc()
     r_1 = map_r_1(y)
     toc1 = tictoc()
-    print('time for r_1 array =',toc1 - tic1)
+    #print('time for r_1 array =',toc1 - tic1)
+    
+    print('m = '+str(m)[0:8]+': r coordinates computed in '+str(toc1-tic4)+' seconds.')
+    
+    r_1[r_1<0] = 1e-4
+    r_2[r_2<0] = 1e-4
+    r_3[r_3<0] = 1e-4
+    r_4[r_4<0] = 1e-4
+    r_1[1<r_1] = 1-1e-4
+    r_2[1<r_2] = 1-1e-4
+    r_3[1<r_3] = 1-1e-4
+    r_4[1<r_4] = 1-1e-4
     
     return r_1, r_2, r_3, r_4, rho_0_val

@@ -9,6 +9,8 @@ from scipy import stats
 from scipy.stats import norm
 from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
+from os import listdir
+import corner
 
 import emcee
 
@@ -186,11 +188,12 @@ def binned_events(dat,bins_t,bins_E,df_box,m,sigma_E=0.166):
     return df_bin
 
 ########## generate input data frame ##########
-def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,list_file_events,file_box_centers,list_file_arf):
+def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
+    #df_events_m = load_events_m(list_file_events,m,sigma_E,n_sigma_E)
     df_events = load_events(list_file_events)
     df_exp = load_exp(bins_t,good_time_ints)
     df_box = load_box(file_box_centers)
-    df_arf_m = load_arf_m(list_file_arf,bins_E,df_box,m,sigma_E)
+    df_arf_m = load_arf_m(list_file_arf,bins_E,df_box,m,sigma_E,n_sigma_E)
     df_events_bin = binned_events(df_events,bins_t,bins_E,df_box,m,sigma_E)
     
     ## adding in non-event data ##
