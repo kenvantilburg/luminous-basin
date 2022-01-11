@@ -3,3 +3,7 @@
 
 # ignore system-generated files
 *.DS_Store
+
+# ignore python checkpoints and cache
+*checkpoint*
+*__pycache__*
