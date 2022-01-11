@@ -7,8 +7,6 @@ This is our abstract.
 
 ## Code
 
-The dependencies of the code are listed in [environments.yml](environment.yml).
-
 The [code](code/) folder contains various Jupyter notebooks that reproduce the plots in the paper. These are linked to from the paper.
 
 ## Authors
