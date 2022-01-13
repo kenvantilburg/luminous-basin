@@ -20,7 +20,7 @@ from matplotlib import rc
 
 from time import time as tictoc
 
-from model_functions import * 
+from functions_model import * 
 
 plt.rcdefaults()
 fontsize = 14

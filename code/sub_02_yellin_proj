@@ -13,14 +13,14 @@
 source ~/.bashrc
 conda activate ss_sim
 
-jmock=131
+jmock=6
 
 # Run 
 for im in {0..369..1}
     do
         echo "Starting projection $jmock $im"
-        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_mock.py $jmock $im &
-        # srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_proj_fid_data.py $im &
+        srun -n1 -c1 --mem-per-cpu=5000 python3 script_02_yellin_proj_fid_mock.py $jmock $im &
+        # srun -n1 -c1 --mem-per-cpu=5000 python3 script_02_yellin_proj_fid_data.py $im &
         sleep 1
     done
 

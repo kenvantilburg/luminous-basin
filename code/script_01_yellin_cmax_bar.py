@@ -1,18 +1,17 @@
 dir_home = '/mnt/home/kvantilburg/'
-dir_ceph = dir_home+'ceph/LuminousBasin/'
+dir_ceph = dir_home+'ceph/luminous-basin/'
 dir_events = dir_ceph+'mocks/event_lists/'
 dir_source = dir_ceph+'data/products_80610202001_orbit1_chu12_spatialARF/'
 dir_production = dir_ceph+'data/production/'
-#dir_mc = dir_ceph+'yellin_vols/k08/'
 dir_mc = dir_ceph+'yellin_vols/k10_1/'
 
 name = 'vols_k10'
 
 import sys
 from my_units import *
-from model_functions import * 
-from load_functions import *
-from yellin_functions import *
+from functions_model import * 
+from functions_load import *
+from functions_yellin import *
 
 i_mu = np.int(sys.argv[1]) # mu to compute
 

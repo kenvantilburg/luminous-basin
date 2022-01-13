@@ -20,7 +20,7 @@ k=10
 for im in {0..369..1}
     do
         echo "Starting volume computation $jmock $im ..."
-        srun -n1 -c1 --mem-per-cpu=5000 python3 yellin_vols.py $jmock $im $k &
+        srun -n1 -c1 --mem-per-cpu=5000 python3 script_03_yellin_vols_mock.py $jmock $im $k &
         sleep 1
     done
 

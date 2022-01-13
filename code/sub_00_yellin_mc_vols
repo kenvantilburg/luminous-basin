@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Request one node that will not be allocated to others for the duration of the run. Run just below week time limit
-#SBATCH -N1 --exclusive --ntasks-per-node=40 -t 00-10:00:00
+#SBATCH -N1 --exclusive --ntasks-per-node=40 -t 06-23:00:00
 #SBATCH -C skylake
 #SBATCH -o out/%j.out
-#SBATCH --mem-per-cpu=10000
+#SBATCH --mem-per-cpu=5000
 # SBATCH --mail-user=kvantilburg@flatironinstitute.org
 # SBATCH --mail-type=ALL
 #SBATCH --requeue
@@ -13,20 +13,17 @@
 source ~/.bashrc
 conda activate ss_sim
 
-rm /mnt/home/kvantilburg/ceph/LuminousBasin/yellin_vols/k10_1/vols_k10_cmax_bar.csv
-
 # Run 
-for i in {000..199..001}
-#for i in {1..40..1}
+#for i in {000..039..001}
+#for i in {040..079..001}
+#for i in {080..119..001}
+#for i in {120..159..001}
+for i in {160..199..001}
     do
         echo "Starting simulation $i"
-        srun -n1 -c1 --mem-per-cpu=10000 python3 yellin_cmax_bar.py $i &
+        srun -n1 -c1 --mem-per-cpu=5000 python3 script_00_yellin_mc_vols.py $i &
         sleep 0.01
     done
-    
-echo "All Monte Carlo analyses started."
 
 # set 'wait' barrier so entire job does not get killed when last srun command does
 wait 
-
-echo "All Monte Carlo analyses finished."

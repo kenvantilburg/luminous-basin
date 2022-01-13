@@ -1,5 +1,5 @@
 dir_home = '/mnt/home/kvantilburg/'
-dir_ceph = dir_home+'ceph/LuminousBasin/'
+dir_ceph = dir_home+'ceph/luminous-basin/'
 dir_events = dir_ceph+'mocks/event_lists/'
 dir_source = dir_ceph+'data/products_80610202001_orbit1_chu12_spatialARF/'
 dir_production = dir_ceph+'data/production/'
@@ -8,9 +8,9 @@ import sys
 #sys.path.insert(0, dir_notebook)
 
 from my_units import *
-from model_functions import * 
-from load_functions import *
-from yellin_functions import *
+from functions_model import * 
+from functions_load import *
+from functions_yellin import *
 
 i_mock = np.int(sys.argv[1]) # mock file number
 i_m = np.int(sys.argv[2]) # axion mass integer
