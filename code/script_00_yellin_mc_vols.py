@@ -1,7 +1,7 @@
 ############## preamble #################################
 dir_home = '/mnt/home/kvantilburg/'
 dir_notebook = dir_home+'luminous-basin/code/'
-dir_ceph = dir_home+'ceph/luminous-basin/yellin_vols/k10_1/'
+dir_ceph = dir_home+'ceph/luminous-basin/yellin_mc_vols/k10/'
 
 import sys
 sys.path.insert(0, dir_notebook)

@@ -3,7 +3,7 @@ dir_ceph = dir_home+'ceph/luminous-basin/'
 dir_events = dir_ceph+'mocks/event_lists/'
 dir_source = dir_ceph+'data/products_80610202001_orbit1_chu12_spatialARF/'
 dir_production = dir_ceph+'data/production/'
-dir_mc = dir_ceph+'yellin_vols/k10_1/'
+dir_mc = dir_ceph+'yellin_mc_vols/k10/'
 
 name = 'vols_k10'
 
