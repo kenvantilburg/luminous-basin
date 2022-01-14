@@ -99,6 +99,7 @@ def load_box(file_box_centers):
 
 def load_arf(list_file_arf,bins_E,df_box):
     width_E = bins_E[1] - bins_E[0]
+    E_cut = 3. # energy cutoff below which ARF cannot be trusted (conservatively set ARF = 0 below)
     df_arf = pd.DataFrame(columns=['detector','idx_E','i1','i2','ra','dec','arf'])
     for i_f,file in enumerate(list_file_arf):
         try:
@@ -111,6 +112,7 @@ def load_arf(list_file_arf,bins_E,df_box):
             list_E = df['# Start of Energy Bin (keV)'].to_numpy()
             idx_E = (np.round((list_E-bins_E[0])/width_E)).astype(int)
             list_arf = df[' Effective Area (cm^2)'].to_numpy()
+            list_arf[list_E < E_cut] = 0. # set ARF to vanish below E_cut (conservative) 
             df_tmp = pd.DataFrame(data=np.transpose([len(idx_E)*[detector],idx_E,len(idx_E)*[i1],
                                                      len(idx_E)*[i2],len(idx_E)*[ra],len(idx_E)*[dec],list_arf]),
                                   columns=['detector','idx_E','i1','i2','ra','dec','arf'])

@@ -17,7 +17,7 @@ i_mock = np.int(sys.argv[1]) # mock file number
 i_m = np.int(sys.argv[2]) # axion mass integer
 print('i_mock =',str(i_mock),'| i_m =',str(i_m))
 
-dir_proj = dir_ceph+'yellin_projections/mocks/mock_'+str(i_mock)+'/'
+dir_proj = dir_ceph+'results/mocks/mock_'+str(i_mock)+'/proj/'
 
 file_rho0 = dir_proj+'rho0_'+str(i_mock)+'_'+str(i_m)+'_fid.csv'
 file_proj = dir_proj+'proj_'+str(i_mock)+'_'+str(i_m)+'_fid.csv'
