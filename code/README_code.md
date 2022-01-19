@@ -16,7 +16,7 @@ The notebook `nb_01_yellin_cmax_bar.ipynb` collects the MC results into a plot.
 
 3. Run [script_03_yellin_vols_mock.py](script_03_yellin_vols_mock.py) with syntax `script_03_yellin_vols_mock.py $jmock $im $k` to compute the Yellin volumes on the projection files from the previous step. 
 
-4. Run [script_04_yellin_cmax_mock.py](script_04_yellin_cmax_mock.py) with syntax `script_04_yellin_cmax_mock.py $jmock $im $k` to compute C_max values based on the CDFs from the Monte Carlo run (step 0) and the computed volumes (step 3) on the mock data. This produces a results file called `file_N_sig_lim` in the `dir_proj` folder.
+4. Run [script_04_yellin_cmax_mock.py](script_04_yellin_cmax_mock.py) with syntax `script_04_yellin_cmax_mock.py $jmock $im $k` to compute C_max values based on the CDFs from the Monte Carlo run (step 0) and the computed volumes (step 3) on the mock data. This produces a results file called `file_N_sig_lim` in the `dir_res` folder.
 
 ### Yellin/Poisson scripts on data
 

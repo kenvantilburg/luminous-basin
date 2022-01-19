@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm, tqdm_notebook
-import numpy_indexed as npi
 from scipy.interpolate import RegularGridInterpolator as rgi
 from scipy.integrate import quad, nquad
 from scipy import optimize
@@ -11,6 +10,7 @@ from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
 
 import emcee
+import corner
 
 import matplotlib.pyplot as plt
 import matplotlib as mp
@@ -36,7 +36,7 @@ factorial_vec = np.vectorize(np.math.factorial) # vectorized version of numpy's 
 
 def poisson_limit(N_dat,CL=0.9):
     """Given 'N_dat' data points, return CL='CL' limit on number of signal counts."""
-    N_sig = np.logspace(0,8,np.int(1e5))
+    N_sig = np.logspace(0,8,int(1e5))
     idx = np.argwhere(np.diff(np.sign((1-CL) - stats.poisson.cdf(N_dat,N_sig)))).flatten()[0]
     return N_sig[idx]
 
@@ -67,6 +67,14 @@ def load_events_m(list_file_events,m,sigma_E,n_sigma_E=2):
     df_events_m = df_events[np.abs(df_events['E']-m/2) < n_sigma_E*sigma_E]
     return df_events_m
 
+def load_events_not_m(list_file_events,m,sigma_E,n_sigma_E):
+    """Loads a data frame with a photon counts labeled by time 't' [second], 'E' [keV], 'ra' [degree], 'dec' [degree]. Only photon counts with energy |E-m/2| > n_sigma_E * sigma_E are returned."""
+    #E_cut = 3. # energy cutoff below which calibration cannot be trusted
+    df_events = load_events(list_file_events)
+    df_events_not_m = df_events[np.abs(df_events['E']-m/2) >= n_sigma_E*sigma_E]
+    #df_events_not_m = df_events_not_m[df_events_not_m['E']>E_cut]
+    return df_events_not_m
+
 def load_exp(bins_t,good_time_ints):
     """Loads exposures of time bins (bins_t) over the "good time intervals" (good_time_ints) of the detectors. These exposures are not corrected for livetime < 1."""
     df_exp = pd.DataFrame(columns=['idx_t','exp'])
@@ -74,7 +82,7 @@ def load_exp(bins_t,good_time_ints):
         t0 = bins_t[idx_t]
         t1 = bins_t[idx_t+1]
         exp = 0
-        for (T0,T1) in good_time_ints[1:]:
+        for (T0,T1) in good_time_ints[:]:
             if (t0 < T0 < t1):
                 if (T1 < t1):
                     exp += T1 - T0
@@ -105,8 +113,8 @@ def load_arf(list_file_arf,bins_E,df_box):
         try:
             file_name = file.split('/')[-1]
             detector = file_name.split('_')[0]
-            i1 = np.int(file_name.split('_')[1])
-            i2 = np.int(file_name.split('_')[2])
+            i1 = int(file_name.split('_')[1])
+            i2 = int(file_name.split('_')[2])
             [ra,dec]=map_ra_dec_from_i1_i2(detector,i1,i2,df_box)
             df = pd.read_csv(file)
             list_E = df['# Start of Energy Bin (keV)'].to_numpy()
@@ -133,7 +141,7 @@ def load_arf_m(list_file_arf,bins_E,df_box,m,sigma_E,n_sigma_E=2):
 
 ########## binning functions ##########
 
-def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166):
+def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166,n_sigma_E=3):
     """Bins events (DataFrame = 'dat') in time bins, energy bins, and pixelated source region, for detectors A and B.
     If m=None, then all data are indexed. If the axion mass 'm' is specified, then only data with m/2 - 2*sigma_E < E < m/2 + 2*sigma_E are indexed.
     Returns data frame with columns = [detector, idx_t, idx_E, pix]."""
@@ -145,7 +153,7 @@ def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166):
         if m==None:
             pass
         else:
-            dat_det = dat_det[np.abs(dat_det['E']-m/2)<3*sigma_E]
+            dat_det = dat_det[np.abs(dat_det['E']-m/2)<n_sigma_E*sigma_E]
         box_RA = df_box[df_box['detector']==detector]['ra'].to_numpy()
         box_DEC = df_box[df_box['detector']==detector]['dec'].to_numpy()
     
@@ -173,27 +181,56 @@ def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166):
                 
     return df_indexed
 
-def binned_events(dat,bins_t,bins_E,df_box,m,sigma_E=0.166):
+def indexed_events_not_m(dat,bins_E):
+    df_indexed = pd.DataFrame(columns=['detector','idx_E'])
+    
+    for detector in ['A','B']:
+        dat_det = dat[dat['detector']==detector]
+        
+        idx_E = np.digitize(dat_det['E'], bins_E)-1 #index of E bin for each photon    
+        df_det = pd.DataFrame(
+            data = np.transpose([len(dat_det)*[detector],idx_E]),
+            columns=['detector','idx_E'])
+        df_indexed = pd.concat([df_indexed,df_det],ignore_index=True)
+    
+    df_indexed = df_indexed.astype({'detector': str,'idx_E': int})
+    return df_indexed
+
+def binned_events(dat,bins_t,bins_E,df_box,m,sigma_E=0.166,n_sigma_E=3):
     """Bins events (DataFrame = 'dat') in time bins, energy bins, and pixelated source region, for detectors A and B.
     If m=None, then all data are binned. If the axion mass 'm' is specified, then only data with m/2 - 2*sigma_E < E < m/2 + 2*sigma_E are binned.
     Returns data frame with columns = [detector, idx_t, idx_E, pix, counts], only for bins with nonzero counts."""
     
-    df_indexed = indexed_events(dat,bins_t,bins_E,df_box,m,sigma_E)
+    df_indexed = indexed_events(dat,bins_t,bins_E,df_box,m,sigma_E,n_sigma_E)
     
-    df_bin = df_indexed.groupby(df_indexed.columns.tolist(),as_index=False).size()
+    df_bin = df_indexed.groupby(df_indexed.columns.tolist(),as_index=False).size().reset_index()
     df_bin = df_bin.rename(columns={"size": "counts"})
     
-    df_bin = df_bin.sort_values(by=['idx_t','detector','idx_E','i1','i2'],ignore_index=True)
+    df_bin = df_bin.sort_values(by=['idx_t','detector','idx_E','i1','i2'])#,ignore_index=True)
+    df_bin = df_bin.reset_index()
+    df_bin = df_bin.drop(columns=['index'])
+    
+    return df_bin
+
+def binned_events_not_m(dat,bins_E):
+    df_indexed = indexed_events_not_m(dat,bins_E)
+    
+    df_bin = df_indexed.groupby(df_indexed.columns.tolist(),as_index=False).size().reset_index()
+    df_bin = df_bin.rename(columns={"size": "counts"})
+    
+    df_bin = df_bin.sort_values(by=['detector','idx_E'])#,ignore_index=True)
+    df_bin = df_bin.reset_index()
+    df_bin = df_bin.drop(columns=['index'])
     
     return df_bin
 
 ########## generate input data frame ##########
-def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,list_file_events,file_box_centers,list_file_arf):
-    df_events = load_events(list_file_events)
+def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
+    df_events = load_events_m(list_file_events,m,sigma_E,n_sigma_E)
     df_exp = load_exp(bins_t,good_time_ints)
     df_box = load_box(file_box_centers)
-    df_arf_m = load_arf_m(list_file_arf,bins_E,df_box,m,sigma_E)
-    df_events_bin = binned_events(df_events,bins_t,bins_E,df_box,m,sigma_E)
+    df_arf_m = load_arf_m(list_file_arf,bins_E,df_box,m,sigma_E,n_sigma_E)
+    df_events_bin = binned_events(df_events,bins_t,bins_E,df_box,m,sigma_E,n_sigma_E)
     
     ## adding in non-event data ##
     df_data = pd.DataFrame()
@@ -217,6 +254,45 @@ def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,list_file_events,f
     idx_first = df_merge.duplicated(subset=['detector','idx_t','idx_E','i1','i2'],keep='first') # row indices of events
     idx_last = df_merge.duplicated(subset=['detector','idx_t','idx_E','i1','i2'],keep='last') # row indices of source
     df_data.loc[idx_last[0:len(df_data)],'counts'] = np.asarray(df_merge.iloc[np.where(idx_first)[0]]['counts'],dtype=int) # add events
+    
+    ## throw out data below E_cut_min because of lack of calibration, and above E_cut_max
+    E_cut_min = 2.999
+    df_data = df_data[df_data['E']>E_cut_min]
+    E_cut_max = 150.001
+    df_data = df_data[df_data['E']<E_cut_max]
+    
+    return df_data
+
+def load_data_not_m(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
+    df_events_not_m = load_events_not_m(list_file_events,m,sigma_E,n_sigma_E)
+    df_events_bin_not_m = binned_events_not_m(df_events_not_m,bins_E)   
+    #df_events_bin_not_m = df_events_bin_not_m.groupby(by=['idx_E'],as_index=False).sum()
+    
+    exposure = np.sum([interval[1]-interval[0] for interval in good_time_ints])
+    
+    ## adding in non-event data ##
+    df_data = pd.DataFrame()
+    df_data.insert(0,'detector',np.concatenate([['A']*len(bins_E),['B']*len(bins_E)]))
+    df_data.insert(1,'idx_E',np.concatenate([range(len(bins_E)),range(len(bins_E))]))
+    df_data.insert(2,'E',bins_E[df_data['idx_E']])
+    df_data.insert(3,'exp',exposure)
+    df_data.insert(4,'counts',0)
+    
+    ## adding in event data
+    df_merge = df_data.append(df_events_bin_not_m) # merge source data and event data frames
+    idx_first = df_merge.duplicated(subset=['detector','idx_E'],keep='first') # row indices of events
+    idx_last = df_merge.duplicated(subset=['detector','idx_E'],keep='last') # row indices of source
+    
+    df_data.loc[idx_last[0:len(df_data)],'counts'] = np.asarray(df_merge.iloc[np.where(idx_first)[0]]['counts'].fillna(0),dtype=int) # add events
+    
+    ## correct for livetime
+    df_data.loc[df_data['detector']=='A','exp'] = livetime[0] * df_data.loc[df_data['detector']=='A','exp']
+    df_data.loc[df_data['detector']=='B','exp'] = livetime[1] * df_data.loc[df_data['detector']=='B','exp']
+    
+    ## throw out data below E_cut because of lack of calibration
+    E_cut = 2.999
+    df_data = df_data[df_data['E']>E_cut]
+                   
     return df_data
 
 ########## generate arf interpolation function ##########

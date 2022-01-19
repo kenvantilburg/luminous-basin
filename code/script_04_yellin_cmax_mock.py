@@ -13,8 +13,6 @@ from functions_model import *
 from functions_load import *
 from functions_yellin import *
 
-list_mu = np.logspace(0,4,41)
-
 i_mock = np.int(sys.argv[1]) # mock file number
 i_m = np.int(sys.argv[2]) # axion mass integer
 k = np.int(sys.argv[3]) # number of bins for yellin binning
@@ -23,9 +21,9 @@ k = np.int(sys.argv[3]) # number of bins for yellin binning
 list_m = np.arange(3,40,0.1)
 m = list_m[i_m]  # axion mass [keV]
 
-dir_proj = dir_ceph+'yellin_projections/mocks/mock_'+str(i_mock)+'/'
+dir_res = dir_ceph+'results/mocks/mock_'+str(i_mock)+'/'
 
-file_N_sig_lim = dir_proj+'N_sig_lim_k'+str(k)+'_'+str(i_mock)+'_fid.csv'
+file_N_sig_lim = dir_res+'N_sig_lim_k'+str(k)+'_'+str(i_mock)+'_fid.csv'
 
 ###### get C_max #####
 list_mu = np.logspace(0.2,2.11,201)[1:]
@@ -38,14 +36,14 @@ int_C_max_bar = interp1d(df_C_max_bar['mu'],df_C_max_bar['C_max_bar'],kind='line
 int_C_max_bar_2 = interp1d(df_C_max_bar['mu'],1-(1-2*err_frac)*(1-df_C_max_bar['C_max_bar']),kind='linear',bounds_error=False,fill_value=1.0)
 
 ##### read in projection file #####
-file_proj = dir_proj+'proj/proj_'+str(i_mock)+'_'+str(i_m)+'_fid.csv'
+file_proj = dir_res+'proj/proj_'+str(i_mock)+'_'+str(i_m)+'_fid.csv'
 df_proj = pd.read_csv(file_proj)
 N_proj = len(df_proj)
 i_down_max = np.max([0,np.int(np.ceil(np.log(N_proj/100)/np.log(2)))])
 
 ##### set mu limit #####
 for i_down in range(0,1+i_down_max):
-    file_vol = dir_proj+'vols/vols_k'+str(k)+'_'+str(i_mock)+'_'+str(i_m)+'_d_'+f'{i_down:02d}'+'_fid.csv'
+    file_vol = dir_res+'vols/vols_k'+str(k)+'_'+str(i_mock)+'_'+str(i_m)+'_d_'+f'{i_down:02d}'+'_fid.csv'
     df_vol = pd.read_csv(file_vol)
     vols = df_vol.iloc[0].to_numpy()
     

@@ -1,5 +1,4 @@
 import numpy as np
-import numpy_indexed as npi
 
 import scipy.stats as stats
 import pandas as pd
@@ -39,7 +38,7 @@ def counts_in_cuboid(S,a1,b1,c1,d1,a2,b2,c2,d2):
 #finds max rectangles with {0,1,2,..n} points in 4D array A with unit size, 
 def maximal_cuboid_volumes(A):
     """For a 4D array A with n points, finds the maximal-volume cuboids with j or fewer points, and returns an array of length n+1 of their volumes V_j for j = [0,1,2,...,n]. The array A is assumed to be a discretization of the unit cube. By construction, therefore, V_n = 1, and all volumes V_j are smaller. V_0 is the largest empty cuboid."""
-    n = np.int(np.sum(A)); # number of events in A
+    n = int(np.sum(A)); # number of events in A
     S = count_array_origin_cuboid(A)
     N,M,L,K = np.shape(A)
     Vj = np.zeros(n+1);

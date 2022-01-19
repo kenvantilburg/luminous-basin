@@ -7,7 +7,7 @@ This is our abstract.
 
 ## Code
 
-The [code](code/) folder contains various Jupyter notebooks that reproduce the plots in the paper. These are linked to from the paper.
+The [code](code/) folder contains various scripts and Jupyter notebooks that reproduce the plots in the paper (in [figures](figures/)), from where they are also linked. The code requires the python packages `numpy pandas tqdm scipy emcee corner matplotlib time`; a full list of requirements (including versions and dependencies) is found in [requirements.txt](requirements.txt).
 
 ## Authors
 

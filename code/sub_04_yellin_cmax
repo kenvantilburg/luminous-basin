@@ -17,7 +17,7 @@ jmock=6
 k=10
 
 # Run 
-for im in {2..369..1}
+for im in {20..369..1}
     do
         echo "Starting N_sig_lim_yellin calculation $jmock $im"
         srun -n1 -c1 --mem-per-cpu=5000 python3 script_04_yellin_cmax_mock.py $jmock $im $k &
