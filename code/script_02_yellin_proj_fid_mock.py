@@ -13,8 +13,8 @@ from functions_model import *
 from functions_load import *
 from functions_yellin import *
 
-i_mock = np.int(sys.argv[1]) # mock file number
-i_m = np.int(sys.argv[2]) # axion mass integer
+i_mock = int(sys.argv[1]) # mock file number
+i_m = int(sys.argv[2]) # axion mass integer
 print('i_mock =',str(i_mock),'| i_m =',str(i_m))
 
 dir_proj = dir_ceph+'results/mocks/mock_'+str(i_mock)+'/proj/'

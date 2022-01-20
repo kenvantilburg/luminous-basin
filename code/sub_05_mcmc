@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Request one node that will not be allocated to others for the duration of the run.
-#SBATCH -N1 --exclusive --ntasks-per-node=40 -t 01-23:00:00
+# SBATCH -N1 --exclusive --ntasks-per-node=128 -t 01-23:00:00
+#SBATCH -N1 --exclusive --ntasks-per-node=40 -t 00-03:00:00
 #SBATCH -C skylake
 #SBATCH -o out/%j.out
 #SBATCH --mem-per-cpu=5000
@@ -14,19 +15,18 @@ source ~/.bashrc
 conda activate luminous-basin
 
 jmock=6
-k=10
 
 # Run 
-for im in {20..369..1}
+for im in {21..369..1}
     do
-        echo "Starting N_sig_lim_yellin calculation $jmock $im"
-        srun -n1 -c1 --mem-per-cpu=5000 python3 script_04_yellin_cmax_mock.py $jmock $im $k &
+        echo "Starting MCMC $jmock $im"
+        srun -n1 -c1 --mem-per-cpu=5000 python3 script_05_mcmc_mock.py $jmock $im &
         sleep 1
     done
 
-echo "All N_sig_lim_yellin calculations started"
+echo "All MCMCs started"
 
 # set 'wait' barrier so entire job does not get killed when last srun command does
 wait 
 
-echo "All N_sig_lim_yellin calculations finished"
+echo "All MCMCs calculations finished"

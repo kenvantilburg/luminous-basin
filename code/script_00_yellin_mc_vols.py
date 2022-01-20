@@ -13,7 +13,7 @@ from function_yellin import *
 ############## monte carlo #################################
 list_mu = np.logspace(0.2,2.11,201)
 
-i_mu = np.int(sys.argv[1])
+i_mu = int(sys.argv[1])
 mu = list_mu[i_mu]
 print('mu =',mu)
 N_MC = 3*10**4

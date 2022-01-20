@@ -10,10 +10,10 @@ from functions_model import *
 from functions_load import *
 from functions_yellin import *
 
-i_mu = np.int(sys.argv[1]) # mu to compute
+i_mu = int(sys.argv[1]) # mu to compute
 
 df = pd.read_csv(dir_mc+name+'_imu_'+f'{i_mu:03d}'+'.csv',
-                 names=['mu']+list(range(0,np.int(2e2),1)),skiprows=[0],index_col=False) #set no. of columns large
+                 names=['mu']+list(range(0,int(2e2),1)),skiprows=[0],index_col=False) #set no. of columns large
 
 
 #df = df.replace(1.,np.NaN) #set all volumes=1.0 equal to nan

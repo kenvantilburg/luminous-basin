@@ -6,16 +6,14 @@ dir_production = dir_ceph+'data/production/'
 dir_mc = dir_ceph+'yellin_mc_vols/k10/'
 
 import sys
-#sys.path.insert(0, dir_notebook)
-
 from my_units import *
 from functions_model import * 
 from functions_load import *
 from functions_yellin import *
 
-i_mock = np.int(sys.argv[1]) # mock file number
-i_m = np.int(sys.argv[2]) # axion mass integer
-k = np.int(sys.argv[3]) # number of bins for yellin binning
+i_mock = int(sys.argv[1]) # mock file number
+i_m = int(sys.argv[2]) # axion mass integer
+k = int(sys.argv[3]) # number of bins for yellin binning
 #print('i_mock =',str(i_mock),'| i_m =',str(i_m))
 
 list_m = np.arange(3,40,0.1)
@@ -39,7 +37,7 @@ int_C_max_bar_2 = interp1d(df_C_max_bar['mu'],1-(1-2*err_frac)*(1-df_C_max_bar['
 file_proj = dir_res+'proj/proj_'+str(i_mock)+'_'+str(i_m)+'_fid.csv'
 df_proj = pd.read_csv(file_proj)
 N_proj = len(df_proj)
-i_down_max = np.max([0,np.int(np.ceil(np.log(N_proj/100)/np.log(2)))])
+i_down_max = np.max([0,int(np.ceil(np.log(N_proj/100)/np.log(2)))])
 
 ##### set mu limit #####
 for i_down in range(0,1+i_down_max):
@@ -66,7 +64,7 @@ for i_down in range(0,1+i_down_max):
         mu = list_mu[i_mu]
         #print('n_iter =',n_iter,'|','mu =',mu)
         df = pd.read_csv(dir_mc+'vols_k10_imu_'+f'{i_mu:03d}'+'.csv',
-                         names=['mu']+list(range(0,np.int(50+1.2*mu),1)),skiprows=[0]) #set no. of columns large
+                         names=['mu']+list(range(0,int(50+1.2*mu),1)),skiprows=[0]) #set no. of columns large
         df = df.replace(np.nan,1.0) #set all nan volumes to 1
         nunique = df.nunique()
         cols_to_drop = nunique[nunique == 1].index

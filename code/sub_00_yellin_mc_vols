@@ -11,7 +11,7 @@
 
 # Activate conda environment
 source ~/.bashrc
-conda activate ss_sim
+conda activate luminous-basin
 
 # Run 
 #for i in {000..039..001}

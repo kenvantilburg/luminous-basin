@@ -11,9 +11,9 @@
 
 # Activate conda environment
 source ~/.bashrc
-conda activate ss_sim
+conda activate luminous-basin
 
-rm /mnt/home/kvantilburg/ceph/LuminousBasin/yellin_vols/k10_1/vols_k10_cmax_bar.csv
+rm /mnt/home/kvantilburg/ceph/luminous-basin/yellin_mc_vols/k10/vols_k10_cmax_bar.csv
 
 # Run 
 for i in {000..199..001}
