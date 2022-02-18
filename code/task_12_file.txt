@@ -1,1 +1,0 @@
-#DISBATCH REPEAT 317 ./task_12_yellin_proj.sh ${DISBATCH_REPEAT_INDEX} &> log/task_${DISBATCH_REPEAT_INDEX}.log
