@@ -17,6 +17,8 @@ import matplotlib as mp
 from matplotlib import font_manager
 from matplotlib import rcParams
 from matplotlib import rc
+from shapely import geometry
+
 
 from time import time as tictoc
 
@@ -33,6 +35,21 @@ degree = np.pi/180 # degree in units of radians
 
 ########### general-usage functions #####################
 factorial_vec = np.vectorize(np.math.factorial) # vectorized version of numpy's factorial function
+
+
+def findIntersection(contour1,contour2):
+  p1 = contour1.collections[0].get_paths()[0]
+  v1 = p1.vertices
+
+  p2 = contour2.collections[0].get_paths()[0]
+  v2 = p2.vertices
+
+  poly1 = geometry.LineString(v1)
+  poly2 = geometry.LineString(v2)
+
+  intersection = poly1.intersection(poly2)
+
+  return intersection
 
 def poisson_limit(N_dat,CL=0.9):
     """Given 'N_dat' data points, return CL='CL' limit on number of signal counts."""
