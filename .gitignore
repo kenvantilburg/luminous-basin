@@ -2,6 +2,7 @@
 *.log
 *slurm*
 task*
+sub_*
 
 # ignore system-generated files
 *.DS_Store
