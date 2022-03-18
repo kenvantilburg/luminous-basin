@@ -41,7 +41,7 @@ livetime = np.asarray([1501.16599845754, 1481.86081041239])/exposure # effective
 duration = np.max(good_time_ints)- np.min(good_time_ints)
 
 # time bins
-N_bins_t = 1
+N_bins_t = 10
 bins_t = np.linspace(good_time_ints[0][0], good_time_ints[-1][1], N_bins_t+1)
 
 # energy bins [units = keV]
