@@ -92,9 +92,31 @@ def load_events_not_m(list_file_events,m,sigma_E,n_sigma_E):
     #df_events_not_m = df_events_not_m[df_events_not_m['E']>E_cut]
     return df_events_not_m
 
+# def load_exp(bins_t,good_time_ints):
+#     """Loads exposures of time bins (bins_t) over the "good time intervals" (good_time_ints) of the detectors. These exposures are not corrected for livetime < 1."""
+#     df_exp = pd.DataFrame(columns=['idx_t','exp'])
+#     for idx_t in range(len(bins_t)-1):
+#         t0 = bins_t[idx_t]
+#         t1 = bins_t[idx_t+1]
+#         exp = 0
+#         for (T0,T1) in good_time_ints[:]:
+#             if (t0 < T0 < t1):
+#                 if (T1 < t1):
+#                     exp += T1 - T0
+#                 elif (t1 <= T1):
+#                     exp += t1 - T0
+#             elif (T0 <= t0):
+#                 if (t0 < T1 < t1):
+#                     exp += T1 - t0
+#                 elif (t1 <= T1):
+#                     exp += t1 - t0
+#         df_exp = df_exp.append(pd.DataFrame([[idx_t,exp]],columns['idx_t','exp']),ignore_index=True)
+#         print(df_exp)
+#     return df_exp
+
 def load_exp(bins_t,good_time_ints):
     """Loads exposures of time bins (bins_t) over the "good time intervals" (good_time_ints) of the detectors. These exposures are not corrected for livetime < 1."""
-    df_exp = pd.DataFrame(columns=['idx_t','exp'])
+    list_exp = []
     for idx_t in range(len(bins_t)-1):
         t0 = bins_t[idx_t]
         t1 = bins_t[idx_t+1]
@@ -110,7 +132,8 @@ def load_exp(bins_t,good_time_ints):
                     exp += T1 - t0
                 elif (t1 <= T1):
                     exp += t1 - t0
-        df_exp = df_exp.append(pd.DataFrame([[idx_t,exp]],columns=['idx_t','exp']),ignore_index=True)
+        list_exp.append([idx_t,exp])
+    df_exp = pd.DataFrame(list_exp, columns=['idx_t','exp'])
     return df_exp
 
 def load_box(file_box_centers):
