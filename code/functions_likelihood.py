@@ -75,15 +75,19 @@ def LL_m(model_inputs,m,t,E,ra,dec,exp,eps,counts,exposure,width_E,sigma_E,
     counts_sig = S0 * eps * T_flux_template(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min,duration)*np.exp(-(E-m/2)**2/(2*sigma_E**2)) / np.sqrt(2 * np.pi * sigma_E**2)
     mu = counts_bg + counts_sig
     
-    if np.sum(counts*np.log(mu) - mu) == 0:
-        print('Failed for counts*np.log(mu) = mu at mu = '+str(mu))
-        return -np.inf
-    
-    try:
-        return np.sum(counts*np.log(mu) - mu)
-    except:
+    if np.isnan(counts*np.log(mu) - mu).any():
         print('Failed at mu = '+str(mu))
+        print('B1: '+str(B1))
+        print('B2: '+str(B2))
+        print('gamma1: '+str(gamma1))
+        print('gamma2: '+str(gamma2))
+        print('S0: '+str(S0))
         return -np.inf
+    elif np.min(mu) <=0:
+        print('mu <= 0')
+        return -np.inf
+    else:
+        return np.sum(counts*np.log(mu) - mu)
     
     # if np.min(mu) <= 0:
     #     return -np.inf
@@ -153,7 +157,13 @@ def LL(model_inputs,m,
     # LL_3 = LL_not_m(model_inputs,E_not_m,exp_not_m,counts_not_m,exposure,width_E,
     #                 int_rate_aCXB_bg,int_rate_internal_bg,int_rate_continuum_bg)
     
-    return LL_0 + LL_1 + LL_2
+    if np.isnan(LL_0 + LL_1 + LL_2).any():
+        print('LL_0: '+str(LL_0))
+        print('LL_1: '+str(LL_1))
+        print('LL_2: '+str(LL_2))
+        return -np.inf
+    else:
+        return LL_0 + LL_1 + LL_2
     #return LL_0 + LL_1 + LL_3
         
         
