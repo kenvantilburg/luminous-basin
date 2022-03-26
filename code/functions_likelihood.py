@@ -37,6 +37,10 @@ def LL_prior_B(B1,B2,gamma1,gamma2):
     LL_prior_B2 = np.piecewise(B2,[B2<=0,B2>0],[-np.inf,0])
     LL_prior_gamma1 = np.piecewise(gamma1,[gamma1<=0,gamma1>0],[0,-np.inf])
     LL_prior_gamma2 = np.piecewise(gamma2,[gamma2<=0,gamma2>0],[0,-np.inf])
+    # LL_prior_B1 = np.piecewise(B1,[B1<=0,B1>0],[0,-np.inf])
+    # LL_prior_B2 = np.piecewise(B2,[B2<=0,B2>0],[0,-np.inf])
+    # LL_prior_gamma1 = np.piecewise(gamma1,[gamma1<=0,gamma1>0],[-np.inf,0])
+    # LL_prior_gamma2 = np.piecewise(gamma2,[gamma2<=0,gamma2>0],[-np.inf,0])
     return LL_prior_B1 + LL_prior_B2 + LL_prior_gamma1 + LL_prior_gamma2
 
 # def LL_m(model_inputs,m,t,E,ra,dec,exp,eps,counts,exposure,width_E,sigma_E,
@@ -74,17 +78,37 @@ def LL_m(model_inputs,m,t,E,ra,dec,exp,eps,counts,exposure,width_E,sigma_E,
     counts_bg = rate_bg * exp * width_E / (13**2)
     counts_sig = S0 * eps * T_flux_template(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min,duration)*np.exp(-(E-m/2)**2/(2*sigma_E**2)) / np.sqrt(2 * np.pi * sigma_E**2)
     mu = counts_bg + counts_sig
-    
-    if np.isnan(counts*np.log(mu) - mu).any():
-        print('Failed at mu = '+str(mu))
+    if np.isnan(counts_bg).any():
+        print("counts_bg is nan")
         print('B1: '+str(B1))
         print('B2: '+str(B2))
         print('gamma1: '+str(gamma1))
         print('gamma2: '+str(gamma2))
         print('S0: '+str(S0))
-        return -np.inf
-    elif np.min(mu) <=0:
-        print('mu <= 0')
+        
+    if np.isnan(counts_sig).any():
+        print("counts_sig is nan")
+        print('B1: '+str(B1))
+        print('B2: '+str(B2))
+        print('gamma1: '+str(gamma1))
+        print('gamma2: '+str(gamma2))
+        print('S0: '+str(S0))
+    
+    # if np.isnan(counts*np.log(mu) - mu).any():
+        # print('Failed at mu = '+str(mu))
+        # print('B1: '+str(B1))
+        # print('B2: '+str(B2))
+        # print('gamma1: '+str(gamma1))
+        # print('gamma2: '+str(gamma2))
+        # print('S0: '+str(S0))
+    #     return -np.inf
+    if np.min(mu) <=0:
+        # print('mu <= 0')
+        # print('B1: '+str(B1))
+        # print('B2: '+str(B2))
+        # print('gamma1: '+str(gamma1))
+        # print('gamma2: '+str(gamma2))
+        # print('S0: '+str(S0))
         return -np.inf
     else:
         return np.sum(counts*np.log(mu) - mu)
