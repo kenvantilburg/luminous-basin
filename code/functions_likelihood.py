@@ -67,7 +67,7 @@ def LL_m_bg(model_inputs,m,t,E,ra,dec,exp,eps,counts,exposure,width_E,sigma_E,
         print('B1: '+str(B1))
         print('B2: '+str(B2))
         print('gamma1: '+str(gamma1))
-        print('gamma2: '+str(gamma2))
+        print('gamma2: '+str(gamma2))y
         
     if np.min(mu) <=0:
         return -np.inf
