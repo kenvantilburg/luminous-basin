@@ -6,8 +6,8 @@ from scipy.stats import norm
 from scipy.interpolate import interp1d
 from scipy.interpolate import interp2d
 
-dir_home = '/mnt/home/kvantilburg/'
-dir_production = dir_home+'ceph/luminous-basin/data/production/'
+# dir_home = '/mnt/home/kvantilburg/'
+# dir_production = dir_home+'ceph/luminous-basin/data/production/'
 
 ########### units #####################
 degree = np.pi/180 # degree in units of radians
@@ -39,8 +39,8 @@ def Gamma_rad(m,gagg,gaee):
     """Decay rate in units of second^-1. Units: Gamma_rad, m [keV], gagg [GeV^-1]."""
     return (gagg)**2 * m**3 / (64 * np.pi) + AlphaEM**2 * gaee**2 / (9216 * np.pi**3) * m**7 / MElectron**6
 
-tab_e = np.asarray(pd.read_csv(dir_production+'tabe.csv'))
-tab_gamma = np.asarray(pd.read_csv(dir_production+'tabgamma.csv'))
+tab_e = np.asarray(pd.read_csv('../data/production/tabe.csv'))
+tab_gamma = np.asarray(pd.read_csv('../data/production/tabgamma.csv'))
 
 int_rho_dot_over_m_e = interp1d(np.log10(tab_e[:,0]),np.log10(tab_e[:,1]/tab_e[:,0] * (GeV/keV) * (RSolar/AU)**4),
                                 bounds_error=False,fill_value=(1e-100,1e-100))
