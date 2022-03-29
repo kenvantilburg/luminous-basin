@@ -221,6 +221,46 @@ def indexed_events(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166,n_sigma_E=3):
                 
     return df_indexed
 
+# def indexed_events_not_m(dat,bins_t,bins_E,df_box,m=None,sigma_E=0.166,n_sigma_E=3):
+#     """Bins events (DataFrame = 'dat') in time bins, energy bins, and pixelated source region, for detectors A and B.
+#     If m=None, then all data are indexed. If the axion mass 'm' is specified, then only data with m/2 - 2*sigma_E < E < m/2 + 2*sigma_E are indexed.
+#     Returns data frame with columns = [detector, idx_t, idx_E, pix]."""
+    
+#     df_indexed = pd.DataFrame(columns=['detector','idx_t','idx_E','i1','i2'])
+    
+#     for detector in ['A','B']:
+#         dat_det = dat[dat['detector']==detector]
+#         if m==None:
+#             pass
+#         else:
+#             dat_det = dat_det[np.abs(dat_det['E']-m/2)<n_sigma_E*sigma_E]
+#         box_RA = df_box[df_box['detector']==detector]['ra'].to_numpy()
+#         box_DEC = df_box[df_box['detector']==detector]['dec'].to_numpy()
+    
+#         idx_t = np.digitize(dat_det['t'], bins_t)-1 #index of t bin for each photon
+#         idx_E = np.digitize(dat_det['E'], bins_E)-1 #index of E bin for each photon
+        
+#         i1 = np.zeros(len(dat_det),dtype=int)
+#         i2 = np.zeros(len(dat_det),dtype=int)
+#         for i in range(len(dat_det)):
+#             ra = dat_det['ra'].iloc[i]
+#             dec = dat_det['dec'].iloc[i]
+#             cos_dec = np.cos(dec*degree)
+#             dist2 = cos_dec**2 * (ra - box_RA)**2 + (dec - box_DEC)**2
+#             pix = np.argmin(dist2)
+#             i1[i] = df_box['i1'][pix]
+#             i2[i] = df_box['i2'][pix]
+            
+#         df_det = pd.DataFrame(
+#             data = np.transpose([len(dat_det)*[detector],idx_t,idx_E,i1,i2]),
+#             columns=['detector','idx_t','idx_E','i1','i2'])
+                
+#         df_indexed = pd.concat([df_indexed,df_det],ignore_index=True)
+    
+#     df_indexed = df_indexed.astype({'detector': str,'idx_t': int, 'idx_E': int, 'i1': int, 'i2': int})
+                
+#     return df_indexed
+
 def indexed_events_not_m(dat,bins_E):
     df_indexed = pd.DataFrame(columns=['detector','idx_E'])
     
@@ -264,6 +304,22 @@ def binned_events_not_m(dat,bins_E):
     
     return df_bin
 
+# def binned_events_not_m(dat,bins_t,bins_E,df_box,m,sigma_E=0.166,n_sigma_E=3):
+#     """Bins events (DataFrame = 'dat') in time bins, energy bins, and pixelated source region, for detectors A and B.
+#     If m=None, then all data are binned. If the axion mass 'm' is specified, then only data with m/2 - 2*sigma_E < E < m/2 + 2*sigma_E are binned.
+#     Returns data frame with columns = [detector, idx_t, idx_E, pix, counts], only for bins with nonzero counts."""
+    
+#     df_indexed = indexed_events_not_m(dat,bins_t,bins_E,df_box,m,sigma_E,n_sigma_E)
+    
+#     df_bin = df_indexed.groupby(df_indexed.columns.tolist(),as_index=False).size().reset_index()
+#     df_bin = df_bin.rename(columns={"size": "counts"})
+    
+#     df_bin = df_bin.sort_values(by=['idx_t','detector','idx_E','i1','i2'])#,ignore_index=True)
+#     df_bin = df_bin.reset_index()
+#     df_bin = df_bin.drop(columns=['index'])
+    
+    # return df_bin
+
 ########## generate input data frame ##########
 def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
     df_events = load_events_m(list_file_events,m,sigma_E,n_sigma_E)
@@ -302,6 +358,7 @@ def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_fil
     df_data = df_data[df_data['E']<E_cut_max]
     
     return df_data
+
 
 def load_data_not_m(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
     df_events_not_m = load_events_not_m(list_file_events,m,sigma_E,n_sigma_E)
