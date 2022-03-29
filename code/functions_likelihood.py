@@ -30,8 +30,8 @@ def LL_prior_B(B1,B2,B3,B4,gamma4):
     LL_prior_B1 = np.piecewise(B1,[B1<=0,B1>0],[-np.inf,0])
     LL_prior_B2 = np.piecewise(B2,[B2<=0,B2>0],[-np.inf,0])
     LL_prior_B3 = np.piecewise(B3,[B3<=0,B3>0],[-np.inf,0])
-    LL_prior_B4 = np.piecewise(B3,[B3<=0,B3>0],[-np.inf,0])
-    LL_prior_gamma4 = np.piecewise(gamma4,[gamma4<=0,gamma4>0],[0,-np.inf])
+    LL_prior_B4 = np.piecewise(B4,[B4<=0,B4>0],[-np.inf,0])
+    LL_prior_gamma4 = np.piecewise(gamma4,[gamma4<-10,-10<=gamma4<=0,gamma4>0],[-np.inf,0,-np.inf])
     return LL_prior_B1 + LL_prior_B2 + LL_prior_B3 + LL_prior_B4 + LL_prior_gamma4
 
 def LL_m(model_inputs,m,t,E,ra,dec,exp,eps,counts,exposure,width_E,sigma_E,
