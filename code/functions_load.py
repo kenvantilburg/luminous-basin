@@ -242,7 +242,7 @@ def binned_events_not_m(dat,bins_E):
     return df_bin
 
 ########## generate input data frame ##########
-def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
+def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf,E_cut_min=2.999,E_cut_max=150.001):
     df_events = load_events_m(list_file_events,m,sigma_E,n_sigma_E)
     df_exp = load_exp(bins_t,good_time_ints)
     df_box = load_box(file_box_centers)
@@ -273,14 +273,12 @@ def load_data(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_fil
     df_data.loc[idx_last[0:len(df_data)],'counts'] = np.asarray(df_merge.iloc[np.where(idx_first)[0]]['counts'],dtype=int) # add events
     
     ## throw out data below E_cut_min because of lack of calibration, and above E_cut_max
-    E_cut_min = 2.999
     df_data = df_data[df_data['E']>E_cut_min]
-    E_cut_max = 150.001
     df_data = df_data[df_data['E']<E_cut_max]
     
     return df_data
 
-def load_data_not_m(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf):
+def load_data_not_m(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,list_file_events,file_box_centers,list_file_arf,E_cut_min=2.999,E_cut_max=150.001):
     df_events_not_m = load_events_not_m(list_file_events,m,sigma_E,n_sigma_E)
     df_events_bin_not_m = binned_events_not_m(df_events_not_m,bins_E)   
     #df_events_bin_not_m = df_events_bin_not_m.groupby(by=['idx_E'],as_index=False).sum()
@@ -307,9 +305,9 @@ def load_data_not_m(m,sigma_E,good_time_ints,livetime,bins_t,bins_E,n_sigma_E,li
     df_data.loc[df_data['detector']=='B','exp'] = livetime[1] * df_data.loc[df_data['detector']=='B','exp']
     
     ## throw out data below E_cut because of lack of calibration
-    E_cut = 2.999
-    df_data = df_data[df_data['E']>E_cut]
-                   
+    df_data = df_data[df_data['E']>E_cut_min]
+    df_data = df_data[df_data['E']<E_cut_max]
+
     return df_data
 
 ########## generate arf interpolation function ##########

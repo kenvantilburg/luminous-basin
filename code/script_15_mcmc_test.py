@@ -1,3 +1,5 @@
+print('testing...')
+
 import sys
 from my_units import *
 from functions_model import * 
@@ -145,7 +147,7 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, LL, #backend=backend,
                                       E_not_m,exp_not_m,counts_not_m,
                                       int_rate_aCXB_bg,int_rate_internal_bg,int_rate_continuum_bg])
 
-max_n = int(1e5)
+max_n = int(3e2)
 # We'll track how the average autocorrelation time estimate changes
 index = 0
 autocorr = np.empty(max_n)
