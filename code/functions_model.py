@@ -35,7 +35,7 @@ def T_flux_template(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min
     T += (theta <= theta_sun) * 3 / 4 * np.sin(theta_sun)**3 * np.sin(theta)**-2 * (4 * z_min(theta) / (-1 - 2*z_min(theta)**2 + np.cos(2*theta)) + (np.pi - 2 * np.arctan(z_min(theta) * np.sin(theta)**-1)) * np.sin(theta)**-1)
     return T 
 
-def solar_disk_mask(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min,duration):
+def solar_disk_mask(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min,duration,fudge=1.0):
     """Inverse of a solar disk mask. Heaviside theta at solar limb with 1 inside, 0 outside."""
     theta_sun = np.arcsin(0.004636733) # RSolar/AU
     ra_sun = ra_sun_0 + delta_ra_sun * (t-t_min)/(duration)
@@ -43,7 +43,7 @@ def solar_disk_mask(t,ra,dec,ra_sun_0,dec_sun_0,delta_ra_sun,delta_dec_sun,t_min
     theta = np.sqrt((dec*degree-dec_sun)**2 + np.cos((dec*degree+dec_sun)/2)**2 * (ra*degree-ra_sun)**2) # small-angle approx    
     theta = np.asarray(theta+1e-20); #(shift up to avoid dividing by zero)
     T = np.zeros(theta.shape)
-    T += (theta <= theta_sun) 
+    T += (theta <= fudge*theta_sun) 
     return T 
 
 def Gamma_rad(m,gagg,gaee):
